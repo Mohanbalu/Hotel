@@ -3,8 +3,31 @@ import PageWrapper from '@/components/common/PageWrapper';
 import StatsCard from '@/components/cards/StatsCard';
 import BookingTable from '@/components/tables/BookingTable';
 import { quickStats } from '@/utils/navigation';
+import { useEffect, useState } from 'react';
+import userApi from '@/api/userApi';
+import bookingApi from '@/api/bookingApi';
 
 export default function AdminDashboardPage() {
+  const [users, setUsers] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const [u, b] = await Promise.all([userApi.getAllUsers(), bookingApi.getAllBookings()]);
+        setUsers(Array.isArray(u) ? u : []);
+        setBookings(Array.isArray(b) ? b : []);
+      } catch (err) {
+        // handled globally
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
   return (
     <PageWrapper
       title="Admin Dashboard"
@@ -47,7 +70,7 @@ export default function AdminDashboardPage() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
             {[
               { label: 'Monthly Revenue', value: '$84,200', icon: FiDollarSign },
-              { label: 'New Guests', value: '1,284', icon: FiUsers },
+              { label: 'New Guests', value: users.length.toString(), icon: FiUsers },
               { label: 'Growth Rate', value: '18.7%', icon: FiTrendingUp },
             ].map((item) => (
               <div key={item.label} className="rounded-3xl border border-white/10 bg-slate-950/40 p-5">
@@ -66,7 +89,7 @@ export default function AdminDashboardPage() {
 
       <section className="space-y-4 rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
         <h2 className="text-xl font-semibold text-white">Recent Bookings</h2>
-        <BookingTable />
+        <BookingTable rows={bookings} />
       </section>
     </PageWrapper>
   );

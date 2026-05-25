@@ -1,8 +1,31 @@
 import { FiCreditCard, FiSettings, FiUser } from 'react-icons/fi';
 import PageWrapper from '@/components/common/PageWrapper';
 import InputField from '@/components/forms/InputField';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import userApi from '@/api/userApi';
 
 export default function ProfilePage() {
+  const auth = useAuth();
+  const [profile, setProfile] = useState(auth.user || {});
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setProfile(auth.user || {});
+  }, [auth.user]);
+
+  async function onSave() {
+    setSaving(true);
+    try {
+      const updated = await userApi.updateUser(profile.id, profile);
+      alert('Profile updated');
+    } catch (err) {
+      // handled globally
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <PageWrapper
       title="Profile"
@@ -15,15 +38,15 @@ export default function ProfilePage() {
               <FiUser />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold text-white">Ava Johnson</h2>
-              <p className="text-sm text-slate-400">Premium guest profile</p>
+              <h2 className="text-2xl font-semibold text-white">{profile.firstName} {profile.lastName}</h2>
+              <p className="text-sm text-slate-400">{profile.role || 'Guest'}</p>
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             {[
-              ['Bookings', '14'],
-              ['Rewards', '2,450'],
-              ['Saved', '8'],
+              ['Bookings', profile.bookingsCount || '—'],
+              ['Rewards', profile.rewards || '—'],
+              ['Saved', profile.savedCount || '—'],
             ].map(([label, value]) => (
               <div key={label} className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
                 <p className="text-sm text-slate-400">{label}</p>
@@ -43,17 +66,17 @@ export default function ProfilePage() {
             <FiSettings className="text-cyan-300" /> Account Settings
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <InputField label="First Name" defaultValue="Ava" />
-            <InputField label="Last Name" defaultValue="Johnson" />
-            <InputField label="Email" defaultValue="ava@company.com" type="email" />
-            <InputField label="Phone" defaultValue="+1 555 000 000" />
+            <InputField label="First Name" value={profile.firstName || ''} onChange={(e) => setProfile({ ...profile, firstName: e.target.value })} />
+            <InputField label="Last Name" value={profile.lastName || ''} onChange={(e) => setProfile({ ...profile, lastName: e.target.value })} />
+            <InputField label="Email" value={profile.email || ''} onChange={(e) => setProfile({ ...profile, email: e.target.value })} type="email" />
+            <InputField label="Phone" value={profile.phone || ''} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
           </div>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-200">Bio</span>
-            <textarea className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-slate-100 outline-none placeholder:text-slate-500" rows="4" defaultValue="Frequent traveler and premium guest." />
+            <textarea className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-slate-100 outline-none placeholder:text-slate-500" rows="4" value={profile.bio || ''} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} />
           </label>
-          <button className="inline-flex items-center gap-2 rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">
-            <FiCreditCard /> Save Changes
+          <button disabled={saving} onClick={onSave} className="inline-flex items-center gap-2 rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">
+            <FiCreditCard /> {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </section>

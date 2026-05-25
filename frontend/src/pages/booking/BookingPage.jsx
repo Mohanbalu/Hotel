@@ -4,8 +4,47 @@ import InputField from '@/components/forms/InputField';
 import DatePickerField from '@/components/forms/DatePickerField';
 import SelectField from '@/components/forms/SelectField';
 import TextAreaField from '@/components/forms/TextAreaField';
+import { useState } from 'react';
+import bookingApi from '@/api/bookingApi';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 export default function BookingPage() {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [guests, setGuests] = useState(1);
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const auth = useAuth();
+
+  async function onConfirm(e) {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const payload = {
+        userId: auth.user?.id,
+        fullName,
+        email,
+        phone,
+        guests,
+        checkIn,
+        checkOut,
+        notes,
+      };
+      const booking = await bookingApi.createBooking(payload);
+      alert('Booking confirmed');
+      navigate('/booking/history');
+    } catch (err) {
+      // handled globally
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <PageWrapper
       title="Booking"
@@ -14,25 +53,27 @@ export default function BookingPage() {
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6 rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
           <h2 className="text-xl font-semibold text-white">Guest Details</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <InputField label="Full Name" placeholder="Ava Johnson" />
-            <InputField label="Email" type="email" placeholder="ava@example.com" />
-            <InputField label="Phone" placeholder="+1 555 000 000" />
-            <SelectField label="Guests">
-              <option>1 Guest</option>
-              <option>2 Guests</option>
-              <option>3 Guests</option>
-              <option>4+ Guests</option>
-            </SelectField>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <DatePickerField label="Check-in" />
-            <DatePickerField label="Check-out" />
-          </div>
-          <TextAreaField label="Special Requests" placeholder="Late check-in, extra pillows, airport pickup" />
-          <button className="inline-flex items-center gap-2 rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">
-            <FiCalendar /> Confirm Booking
-          </button>
+          <form onSubmit={onConfirm} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <InputField label="Full Name" placeholder="Ava Johnson" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+              <InputField label="Email" type="email" placeholder="ava@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <InputField label="Phone" placeholder="+1 555 000 000" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <SelectField label="Guests" value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
+                <option value={1}>1 Guest</option>
+                <option value={2}>2 Guests</option>
+                <option value={3}>3 Guests</option>
+                <option value={4}>4+ Guests</option>
+              </SelectField>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <DatePickerField label="Check-in" value={checkIn} onChange={(d) => setCheckIn(d)} />
+              <DatePickerField label="Check-out" value={checkOut} onChange={(d) => setCheckOut(d)} />
+            </div>
+            <TextAreaField label="Special Requests" placeholder="Late check-in, extra pillows, airport pickup" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <button disabled={submitting} className="inline-flex items-center gap-2 rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">
+              <FiCalendar /> {submitting ? 'Confirming...' : 'Confirm Booking'}
+            </button>
+          </form>
         </div>
 
         <aside className="space-y-6 rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
