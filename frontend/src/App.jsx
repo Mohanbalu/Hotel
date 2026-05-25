@@ -1,4 +1,5 @@
-// Placeholder React application shell for the frontend scaffold.
+import AppRoutes from './routes/AppRoutes';
+
 export default function App() {
-  return null;
+  return <AppRoutes />;
 }
