@@ -1,11 +1,33 @@
 import { FiEye, FiEyeOff, FiLock, FiMail } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import InputField from '@/components/forms/InputField';
 import useToggle from '@/hooks/useToggle';
 import PageWrapper from '@/components/common/PageWrapper';
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const [showPassword, togglePassword] = useToggle(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const resp = await auth.login({ email, password });
+      const role = resp?.user?.role || resp?.role;
+      if (role === 'ADMIN') navigate('/admin');
+      else navigate('/');
+    } catch (err) {
+      // auth context + axios will handle errors
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <PageWrapper
@@ -13,8 +35,8 @@ export default function LoginPage() {
       description="Sign in to manage bookings, hotels, and operational dashboards in a polished enterprise UI."
     >
       <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-slate-950/20 backdrop-blur-xl sm:p-8">
-        <form className="space-y-5">
-          <InputField label="Email Address" type="email" placeholder="admin@hotelbooking.com" icon={<FiMail />} />
+        <form className="space-y-5" onSubmit={onSubmit}>
+          <InputField label="Email Address" type="email" placeholder="admin@hotelbooking.com" icon={<FiMail />} value={email} onChange={(e) => setEmail(e.target.value)} />
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-200">Password</span>
             <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 focus-within:border-cyan-400/50 focus-within:ring-2 focus-within:ring-cyan-400/20">
@@ -23,6 +45,8 @@ export default function LoginPage() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 className="w-full bg-transparent text-slate-100 outline-none placeholder:text-slate-500"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button type="button" onClick={togglePassword} className="text-slate-400 transition hover:text-cyan-300" aria-label="Toggle password visibility">
                 {showPassword ? <FiEyeOff /> : <FiEye />}
@@ -40,8 +64,8 @@ export default function LoginPage() {
             </a>
           </div>
 
-          <button type="submit" className="w-full rounded-2xl bg-cyan-400 px-4 py-3.5 font-semibold text-slate-950 transition hover:bg-cyan-300">
-            Sign In
+          <button disabled={submitting} type="submit" className="w-full rounded-2xl bg-cyan-400 px-4 py-3.5 font-semibold text-slate-950 transition hover:bg-cyan-300">
+            {submitting ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

@@ -15,6 +15,8 @@ import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
 import ProfilePage from '@/pages/profile/ProfilePage';
 import NotFoundPage from '@/pages/errors/NotFoundPage';
 import UnauthorizedPage from '@/pages/errors/UnauthorizedPage';
+import ProtectedRoute from '@/routes/ProtectedRoute';
+import RoleProtectedRoute from '@/routes/RoleProtectedRoute';
 
 export default function AppRoutes() {
   const location = useLocation();
@@ -27,9 +29,11 @@ export default function AppRoutes() {
             <Route path="/" element={<HomePage />} />
             <Route path="/hotels" element={<HotelsPage />} />
             <Route path="/hotels/:id" element={<HotelDetailsPage />} />
-            <Route path="/booking" element={<BookingPage />} />
-            <Route path="/booking-history" element={<BookingHistoryPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/booking" element={<BookingPage />} />
+              <Route path="/booking-history" element={<BookingHistoryPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Route>
           </Route>
 
           <Route element={<AuthLayout />}>
@@ -38,7 +42,9 @@ export default function AppRoutes() {
           </Route>
 
           <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route element={<RoleProtectedRoute allowedRoles={["ADMIN"]} />}>
+              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            </Route>
           </Route>
 
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
