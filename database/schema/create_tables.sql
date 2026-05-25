@@ -1,1 +1,114 @@
--- Placeholder SQL file for table creation.
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS booking_history;
+DROP TABLE IF EXISTS payments;
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS amenities;
+DROP TABLE IF EXISTS rooms;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS hotels;
+DROP TABLE IF EXISTS roles;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+CREATE TABLE roles (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	role_name VARCHAR(50) NOT NULL,
+	CONSTRAINT uq_roles_role_name UNIQUE (role_name)
+) ENGINE = InnoDB;
+
+CREATE TABLE users (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	full_name VARCHAR(150) NOT NULL,
+	email VARCHAR(150) NOT NULL,
+	password VARCHAR(255) NOT NULL,
+	phone_number VARCHAR(20) NULL,
+	role_id BIGINT UNSIGNED NOT NULL,
+	account_status ENUM('ACTIVE', 'INACTIVE', 'SUSPENDED') NOT NULL DEFAULT 'ACTIVE',
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT uq_users_email UNIQUE (email),
+	CONSTRAINT uq_users_phone_number UNIQUE (phone_number),
+	CONSTRAINT chk_users_email_format CHECK (email LIKE '%_@_%.__%')
+) ENGINE = InnoDB;
+
+CREATE TABLE hotels (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	hotel_name VARCHAR(200) NOT NULL,
+	description TEXT NULL,
+	location VARCHAR(200) NULL,
+	address VARCHAR(255) NOT NULL,
+	city VARCHAR(100) NOT NULL,
+	state VARCHAR(100) NULL,
+	country VARCHAR(100) NOT NULL,
+	zip_code VARCHAR(20) NULL,
+	rating DECIMAL(2,1) NOT NULL DEFAULT 0.0,
+	contact_number VARCHAR(20) NULL,
+	email VARCHAR(150) NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT uq_hotels_name_city_country UNIQUE (hotel_name, city, country),
+	CONSTRAINT chk_hotels_rating CHECK (rating >= 0.0 AND rating <= 5.0)
+) ENGINE = InnoDB;
+
+CREATE TABLE rooms (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	hotel_id BIGINT UNSIGNED NOT NULL,
+	room_number VARCHAR(20) NOT NULL,
+	room_type ENUM('SINGLE', 'DOUBLE', 'DELUXE', 'SUITE', 'FAMILY') NOT NULL,
+	price_per_night DECIMAL(12,2) NOT NULL,
+	capacity INT UNSIGNED NOT NULL,
+	availability_status ENUM('AVAILABLE', 'UNAVAILABLE', 'MAINTENANCE') NOT NULL DEFAULT 'AVAILABLE',
+	room_description TEXT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT uq_rooms_hotel_room_number UNIQUE (hotel_id, room_number),
+	CONSTRAINT chk_rooms_price CHECK (price_per_night >= 0),
+	CONSTRAINT chk_rooms_capacity CHECK (capacity > 0)
+) ENGINE = InnoDB;
+
+CREATE TABLE bookings (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	user_id BIGINT UNSIGNED NOT NULL,
+	room_id BIGINT UNSIGNED NOT NULL,
+	check_in_date DATE NOT NULL,
+	check_out_date DATE NOT NULL,
+	total_amount DECIMAL(12,2) NOT NULL,
+	booking_status ENUM('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED') NOT NULL DEFAULT 'PENDING',
+	payment_status ENUM('PENDING', 'SUCCESS', 'FAILED') NOT NULL DEFAULT 'PENDING',
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT chk_bookings_date_range CHECK (check_out_date > check_in_date),
+	CONSTRAINT chk_bookings_total_amount CHECK (total_amount >= 0)
+) ENGINE = InnoDB;
+
+CREATE TABLE payments (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	booking_id BIGINT UNSIGNED NOT NULL,
+	payment_method ENUM('CARD', 'UPI', 'NET_BANKING', 'WALLET', 'CASH') NOT NULL,
+	payment_amount DECIMAL(12,2) NOT NULL,
+	payment_status ENUM('PENDING', 'SUCCESS', 'FAILED') NOT NULL DEFAULT 'PENDING',
+	transaction_reference VARCHAR(120) NULL,
+	payment_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT uq_payments_booking_id UNIQUE (booking_id),
+	CONSTRAINT uq_payments_transaction_reference UNIQUE (transaction_reference),
+	CONSTRAINT chk_payments_amount CHECK (payment_amount >= 0)
+) ENGINE = InnoDB;
+
+CREATE TABLE amenities (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	hotel_id BIGINT UNSIGNED NOT NULL,
+	amenity_name VARCHAR(100) NOT NULL,
+	amenity_description VARCHAR(255) NULL,
+	CONSTRAINT uq_amenities_hotel_name UNIQUE (hotel_id, amenity_name)
+) ENGINE = InnoDB;
+
+CREATE TABLE booking_history (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	booking_id BIGINT UNSIGNED NOT NULL,
+	action_type ENUM('BOOKING_CREATED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED', 'PAYMENT_COMPLETED') NOT NULL,
+	action_description VARCHAR(500) NULL,
+	action_timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE = InnoDB;
