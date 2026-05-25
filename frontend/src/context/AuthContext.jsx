@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import authApi from '@/api/authApi';
-import { saveAuth, logoutUser, getUser, getUserRole } from '@/utils/authUtils';
+import { saveAuth, saveUser, logoutUser, getUser, getUserRole, decodeToken } from '@/utils/authUtils';
 import { saveToken, getToken, getTokenExpiry } from '@/utils/tokenUtils';
 
 const AuthContext = createContext(null);
@@ -36,13 +36,22 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const data = await authApi.login(credentials);
-      const { token, user: userData } = data;
+      const { token } = data;
       if (!token) throw new Error('No token received');
+      
+      const payload = decodeToken(token);
+      const userData = {
+        id: payload?.id || 1,
+        username: payload?.sub || credentials.email || credentials.username,
+        email: payload?.sub || credentials.email || credentials.username,
+        role: payload?.role || 'USER',
+      };
+      
       saveAuth(token, userData);
-      setUser(userData || null);
-      setRole((userData && userData.role) || null);
+      setUser(userData);
+      setRole(userData.role);
       scheduleAutoLogout();
-      return data;
+      return { token, user: userData };
     } finally {
       setLoading(false);
     }
@@ -65,6 +74,11 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const handleUpdateUser = useCallback((updatedUser) => {
+    saveUser(updatedUser);
+    setUser(updatedUser);
+  }, []);
+
   const value = {
     user,
     role,
@@ -73,6 +87,7 @@ export function AuthProvider({ children }) {
     logout: handleLogout,
     register: handleRegister,
     isAuthenticated: !!getToken(),
+    updateUser: handleUpdateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,6 +1,9 @@
 package com.hotelbooking.security.jwt;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -27,8 +30,16 @@ public class JwtUtil {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
+        String roleStr = userDetails.getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .filter(auth -> auth.startsWith("ROLE_"))
+                .map(auth -> auth.substring(5))
+                .findFirst()
+                .orElse("USER");
+
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
+                .claim("role", roleStr)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -66,7 +77,26 @@ public class JwtUtil {
     }
 
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        byte[] keyBytes;
+
+        try {
+            keyBytes = Decoders.BASE64.decode(jwtSecret);
+        } catch (Exception ex) {
+            keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        }
+
+        if (keyBytes.length < 32) {
+            keyBytes = sha256(keyBytes);
+        }
+
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private byte[] sha256(byte[] input) {
+        try {
+            return MessageDigest.getInstance("SHA-256").digest(input);
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException("SHA-256 is not available", ex);
+        }
     }
 }

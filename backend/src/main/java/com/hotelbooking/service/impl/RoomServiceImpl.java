@@ -24,6 +24,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public List<Room> getAllRooms() {
+        return roomRepository.findAll();
+    }
+
+    @Override
     public List<Room> getRoomsByHotel(Long hotelId) {
         Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new RuntimeException("Hotel not found"));
         return roomRepository.findByHotel(hotel);
@@ -36,6 +41,13 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room addRoom(Room room) {
+        if (room.getHotel() == null || room.getHotel().getId() == null) {
+            throw new RuntimeException("Hotel reference is required");
+        }
+        Hotel hotel = hotelRepository.findById(room.getHotel().getId())
+                .orElseThrow(() -> new RuntimeException("Hotel not found with ID: " + room.getHotel().getId()));
+        room.setHotel(hotel);
+
         // Basic validations
         if (room.getCapacity() == null || room.getCapacity() <= 0) throw new RuntimeException("Invalid capacity");
         if (room.getPricePerNight() == null || room.getPricePerNight() < 0) throw new RuntimeException("Invalid price");

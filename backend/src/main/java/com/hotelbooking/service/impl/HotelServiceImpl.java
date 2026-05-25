@@ -48,6 +48,7 @@ public class HotelServiceImpl implements HotelService {
         existing.setCity(hotel.getCity());
         existing.setLocation(hotel.getLocation());
         existing.setRating(hotel.getRating());
+        existing.setImageUrl(hotel.getImageUrl());
         return hotelRepository.save(existing);
     }
 

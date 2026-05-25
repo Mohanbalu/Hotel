@@ -1,74 +1,113 @@
-import { FiSearch } from 'react-icons/fi';
+import { FiSearch, FiCalendar, FiUsers, FiMapPin, FiCompass } from 'react-icons/fi';
 import PageWrapper from '@/components/common/PageWrapper';
 import HotelCard from '@/components/cards/HotelCard';
 import { destinations, featuredHotels } from '@/utils/mockData';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 export default function HomePage() {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate(`/hotels?q=${searchQuery}`);
+  };
+
   return (
     <PageWrapper
-      title="Find premium stays with a refined booking experience"
-      description="Modern SaaS-inspired frontend skeleton for hotel discovery, reservations, and admin workflows."
+      title="Unveil the Extraordinary"
+      description="Indulge in a handpicked collection of world-class resorts, boutique suites, and luxury sanctuaries."
     >
-      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-hero-grid p-8 shadow-2xl shadow-slate-950/25 lg:p-12">
-        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-          <div className="space-y-6">
-            <span className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-cyan-200">
-              Enterprise hotel booking
+      {/* Premium Luxury Hero Section */}
+      <section className="relative overflow-hidden rounded-[2.5rem] border border-white/5 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-8 shadow-2xl lg:p-16">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.1),_transparent_40%),_radial-gradient(circle_at_bottom_left,_rgba(34,211,238,0.06),_transparent_40%)]" />
+        
+        <div className="relative z-10 grid gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
+          <div className="space-y-6 text-left">
+            <span className="section-chip">
+              <FiCompass className="text-amber-300 animate-spin-slow" /> Luxury Travel Redefined
             </span>
-            <h2 className="max-w-2xl text-5xl font-semibold tracking-tight text-white sm:text-6xl">
-              Explore, compare, and reserve with a clean dashboard-grade interface.
+            <h2 className="text-4xl font-extrabold tracking-tight text-white sm:text-6xl md:text-7xl leading-none">
+              Stays that <br />
+              <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-500 bg-clip-text text-transparent">Inspire Wonders</span>.
             </h2>
-            <p className="max-w-xl text-base leading-7 text-slate-300">
-              This skeleton is built for hackathons and major project demos, with responsive layouts, reusable components, and motion-rich UI.
+            <p className="max-w-xl text-base text-slate-400 leading-relaxed">
+              Skip the ordinary. Access verified boutique collections, curated VIP operational amenities, and seamless reservation flows instantly.
             </p>
 
-            <div className="grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/5 p-3 sm:grid-cols-[1fr_auto]">
-              <div className="flex items-center gap-3 rounded-2xl bg-slate-950/60 px-4 py-3">
-                <FiSearch className="text-cyan-300" />
-                <input className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500" placeholder="Search destination, hotel, or room type" />
+            {/* Segmented Search Form */}
+            <form onSubmit={handleSearch} className="grid gap-3 rounded-[2rem] border border-white/5 bg-slate-950/65 p-3 backdrop-blur-2xl sm:grid-cols-[1fr_auto]">
+              <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-3.5 focus-within:ring-2 focus-within:ring-amber-500/20 duration-300">
+                <FiSearch className="text-amber-300 text-lg" />
+                <input 
+                  className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500" 
+                  placeholder="Where would you like to escape to?" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-              <button className="rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">
-                Search Hotels
+              <button type="submit" className="primary-action px-6 py-3.5 text-sm font-bold">
+                Search Escapes
               </button>
-            </div>
+            </form>
           </div>
 
+          {/* Quick Metrics Showcase */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-              <p className="text-sm text-slate-400">Featured property</p>
-              <p className="mt-3 text-2xl font-semibold text-white">Skyline Resort</p>
-              <p className="mt-2 text-sm text-slate-300">Luxury suites, rooftop dining, and ocean views.</p>
+            <div className="group rounded-[1.75rem] border border-white/5 bg-white/5 p-6 backdrop-blur-xl hover:border-amber-400/20 transition duration-300">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Featured Sanctuary</p>
+              <p className="mt-3 text-2xl font-bold text-white group-hover:text-amber-300 transition duration-200">Skyline Resort</p>
+              <p className="mt-2 text-xs leading-5 text-slate-400">Luxury suites, custom private rooftop dining, and infinity pool views.</p>
             </div>
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-              <p className="text-sm text-slate-400">Average rating</p>
-              <p className="mt-3 text-4xl font-semibold text-white">4.8/5</p>
-              <p className="mt-2 text-sm text-slate-300">Based on 12k+ verified guest reviews.</p>
+            
+            <div className="rounded-[1.75rem] border border-white/5 bg-white/5 p-6 backdrop-blur-xl">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Guest Experience</p>
+              <p className="mt-3 text-4xl font-extrabold tracking-tight text-white">
+                4.9<span className="text-amber-300 text-2xl">★</span>
+              </p>
+              <p className="mt-2 text-xs leading-5 text-slate-400">Highly rated for flawless check-in times and elite customer service.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="space-y-5">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h3 className="text-2xl font-semibold text-white">Featured Hotels</h3>
-            <p className="mt-2 text-sm text-slate-400">Curated properties with polished presentation cards.</p>
-          </div>
+      {/* Grid of Featured Stays */}
+      <section className="space-y-6">
+        <div className="text-left">
+          <span className="section-chip">Exquisite Choices</span>
+          <h3 className="mt-3 text-3xl font-bold text-white tracking-tight">Our Curated Sanctuaries</h3>
+          <p className="mt-2 text-sm text-slate-400">Each resort is individually vetted for exquisite interiors and scenic landscapes.</p>
         </div>
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {featuredHotels.map((hotel) => (
             <HotelCard key={hotel.id} hotel={hotel} />
           ))}
         </div>
       </section>
 
-      <section className="space-y-5">
-        <h3 className="text-2xl font-semibold text-white">Popular Destinations</h3>
+      {/* Destinations Showcase */}
+      <section className="space-y-6">
+        <div className="text-left">
+          <span className="section-chip">Global Escapes</span>
+          <h3 className="mt-3 text-3xl font-bold text-white tracking-tight">Popular Destinations</h3>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {destinations.map((destination) => (
-            <div key={destination.name} className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
-              <p className="text-lg font-semibold text-white">{destination.name}</p>
-              <p className="mt-2 text-sm text-slate-400">{destination.hotels}</p>
+            <div 
+              key={destination.name} 
+              onClick={() => navigate(`/hotels?q=${destination.name}`)}
+              className="group cursor-pointer rounded-[1.75rem] border border-white/5 bg-white/5 p-6 backdrop-blur-xl hover:border-amber-400/20 hover:bg-white/10 transition-all duration-300 hover:translate-y-[-4px]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-400/10 text-amber-300 group-hover:bg-amber-300 group-hover:text-slate-950 transition duration-300">
+                  <FiMapPin />
+                </div>
+                <div>
+                  <p className="font-bold text-white text-lg leading-snug">{destination.name}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{destination.hotels}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>

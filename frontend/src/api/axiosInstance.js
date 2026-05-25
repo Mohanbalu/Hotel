@@ -1,10 +1,12 @@
-import axios from 'axios';
-import { getToken, removeToken } from '@/utils/tokenUtils';
-import { logoutUser } from '@/utils/authUtils';
 import { handleApiError } from '@/utils/apiErrorHandler';
+import { logoutUser } from '@/utils/authUtils';
+import { getToken, removeToken } from '@/utils/tokenUtils';
+import axios from 'axios';
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9980/api';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: apiBaseUrl,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -30,7 +32,9 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (response.status === 401 || response.status === 403) {
+    const isAuthRoute = response.config?.url?.includes('/auth/login') || response.config?.url?.includes('/auth/register');
+
+    if ((response.status === 401 || response.status === 403) && !isAuthRoute) {
       // Token invalid or expired — ensure cleanup and redirect to login
       try {
         removeToken();
@@ -42,7 +46,7 @@ axiosInstance.interceptors.response.use(
     }
 
     // For other errors, bubble up with a normalized shape
-    handleApiError(response.data || { message: response.statusText });
+    handleApiError(error);
     return Promise.reject(error);
   }
 );
