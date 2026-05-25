@@ -1,0 +1,1 @@
+// Placeholder Spring Boot application entry point for the backend scaffold.
