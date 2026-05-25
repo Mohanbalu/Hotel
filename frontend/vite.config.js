@@ -1,0 +1,1 @@
+// Placeholder Vite configuration file for the frontend scaffold.

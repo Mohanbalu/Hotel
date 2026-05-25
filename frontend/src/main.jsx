@@ -1,0 +1,1 @@
+// Placeholder React entry point for the frontend scaffold.

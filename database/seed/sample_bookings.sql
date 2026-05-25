@@ -1,0 +1,1 @@
+-- Placeholder SQL seed file for bookings.
