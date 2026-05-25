@@ -16,6 +16,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -84,12 +85,22 @@ public class User implements UserDetails {
         this.role = role;
     }
 
+    @PrePersist
+    public void applyDefaultRole() {
+        if (role == null) {
+            role = Role.USER;
+        }
+    }
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (role == null) {
+            return List.of();
+        }
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 

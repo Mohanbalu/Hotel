@@ -1,5 +1,8 @@
 package com.hotelbooking.email.service;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import javax.mail.internet.MimeMessage;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -21,10 +22,8 @@ public class EmailServiceImpl implements EmailService {
     private JavaMailSender mailSender;
 
     private String loadTemplate(String path) {
-        try {
-            ClassPathResource res = new ClassPathResource(path);
-            byte[] bytes = Files.readAllBytes(res.getFile().toPath());
-            return new String(bytes, StandardCharsets.UTF_8);
+        try (InputStream inputStream = new ClassPathResource(path).getInputStream()) {
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             log.error("Failed to load email template: {}", path, e);
             return null;

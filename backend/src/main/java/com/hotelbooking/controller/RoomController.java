@@ -24,6 +24,9 @@ public class RoomController {
 
     public RoomController(RoomService roomService) { this.roomService = roomService; }
 
+    @GetMapping
+    public ResponseEntity<List<Room>> all() { return ResponseEntity.ok(roomService.getAllRooms()); }
+
     @GetMapping("/hotel/{hotelId}")
     public ResponseEntity<List<Room>> roomsByHotel(@PathVariable Long hotelId) { return ResponseEntity.ok(roomService.getRoomsByHotel(hotelId)); }
 

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.hotelbooking.entity.User;
+import com.hotelbooking.enums.Role;
 import com.hotelbooking.repository.UserRepository;
 import com.hotelbooking.security.jwt.JwtUtil;
 import com.hotelbooking.service.AuthService;
@@ -25,15 +26,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User registerUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("User already exists with this email");
+        }
+        if (user.getRole() == null) {
+            user.setRole(Role.USER);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     @Override
     public String loginUser(String username, String password) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Invalid credentials"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found with this email"));
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new IllegalArgumentException("Invalid password");
         }
         return jwtUtil.generateToken(user);
     }

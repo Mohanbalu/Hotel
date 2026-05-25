@@ -27,6 +27,9 @@ public class Hotel {
     @Column
     private Double rating;
 
+    @Column(length = 2048)
+    private String imageUrl;
+
     public Hotel() {}
 
     public Hotel(Long id, String name, String city, String location, Double rating) {
@@ -47,4 +50,6 @@ public class Hotel {
     public void setLocation(String location) { this.location = location; }
     public Double getRating() { return rating; }
     public void setRating(Double rating) { this.rating = rating; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

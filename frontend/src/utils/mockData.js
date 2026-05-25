@@ -3,7 +3,7 @@ export const featuredHotels = [
     id: 1,
     name: 'Azure Skyline Resort',
     location: 'Dubai, UAE',
-    price: '$289/night',
+    price: '₹289/night',
     rating: '4.9',
     image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
   },
@@ -11,7 +11,7 @@ export const featuredHotels = [
     id: 2,
     name: 'Marina Grand Suites',
     location: 'Singapore',
-    price: '$240/night',
+    price: '₹240/night',
     rating: '4.8',
     image: 'https://images.unsplash.com/photo-1578774204375-87efbda3f1c5?auto=format&fit=crop&w=1200&q=80',
   },
@@ -19,7 +19,7 @@ export const featuredHotels = [
     id: 3,
     name: 'Aurora Bay Retreat',
     location: 'Bali, Indonesia',
-    price: '$199/night',
+    price: '₹199/night',
     rating: '4.7',
     image: 'https://images.unsplash.com/photo-1501117716987-c8e1ecb210d8?auto=format&fit=crop&w=1200&q=80',
   },
@@ -39,7 +39,7 @@ export const bookings = [
     guest: 'Ava Johnson',
     date: 'Aug 12, 2026',
     status: 'Confirmed',
-    amount: '$1,148',
+    amount: '₹1,148',
   },
   {
     id: 'BK-1002',
@@ -47,7 +47,7 @@ export const bookings = [
     guest: 'Noah Smith',
     date: 'Aug 18, 2026',
     status: 'Pending',
-    amount: '$840',
+    amount: '₹840',
   },
   {
     id: 'BK-1003',
@@ -55,7 +55,7 @@ export const bookings = [
     guest: 'Mia Brown',
     date: 'Sep 01, 2026',
     status: 'Cancelled',
-    amount: '$660',
+    amount: '₹660',
   },
 ];
 
